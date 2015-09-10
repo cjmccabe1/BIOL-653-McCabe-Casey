@@ -1,0 +1,8 @@
+---
+title: "My First Story"
+author: "Casey McCabe"
+date: "September 10, 2015"
+output: html_document
+---
+
+This class is more fun than I expected and I want to share my apple cake!
