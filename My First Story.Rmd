@@ -6,3 +6,5 @@ output: html_document
 ---
 
 This class is more fun than I expected and I want to share my apple cake!
+
+Jillian is writing a story about Octocats and mounties.
