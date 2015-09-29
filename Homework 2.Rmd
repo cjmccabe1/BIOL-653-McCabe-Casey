@@ -1,0 +1,178 @@
+---
+title: "Homework 2"
+author: "Casey McCabe"
+date: "September 26, 2015"
+output: html_document
+---
+
+I started the homework by loading the gapminder and ggplot2 packages from my library.
+
+```{r}
+library(gapminder)
+library(ggplot2)
+```
+
+#### Part I ####
+
+For the first plot, I created a plot space that had gdpPercap on the x axis and life Exp on the y axis.
+I then added a layer to express the data as points with each continent represented with a separate color and shape.
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point(aes(color = continent, shape = continent))
+```
+
+For the next plot, I added another layer to change the x axis to a log10 scale.
+
+```{r}
+ggplot(data = gapminder, aes(x = (gdpPercap), y = lifeExp)) +
+  geom_point(aes(color = continent, shape = continent)) +
+  scale_x_log10()
+```
+
+I then added a fourth layer that plotted a line using a linear fit (lm).
+
+```{r}
+ggplot(data = gapminder, aes(x = (gdpPercap), y = lifeExp)) +
+  geom_point(aes(color = continent, shape = continent)) +
+  scale_x_log10() +
+  geom_smooth(method = lm) 
+```
+
+To clean it up a little, I changed the names of the axes in a fifth layer.
+
+```{r}
+ggplot(data = gapminder, aes(x = (gdpPercap), y = lifeExp)) +
+  geom_point(aes(color = continent, shape = continent)) +
+  scale_x_log10() +
+  geom_smooth(method = lm) +
+  labs(x = "GDP Per Capita", y = "Life Expectancy")
+```
+
+For the next plot, I started from scratch. I created a density plot lifeExp and faceted it by year. I changed the opacity of the fill using the alpha parameter. I also cleaned up the axes in the same way as above. 
+
+```{r}
+ggplot(data = gapminder, aes(x = lifeExp, fill = continent)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ year)+
+  labs(x = "Life Expectancy", y = "Density")
+```
+
+The next plot was made by creating a boxplot of lifeExp for each continent (with continents designated by color). I then faceted it by year. 
+
+```{r}
+ggplot(data = gapminder, aes(x = continent, y = lifeExp, color = continent)) +
+  geom_boxplot() +
+  facet_wrap(~ year)
+```
+
+To make the x axis more legible, I rotated the continent labels by 90 degrees and cleaned up the names again.
+
+```{r}
+ggplot(data = gapminder, aes(x = continent, y = lifeExp, color = continent)) +
+  geom_boxplot() +
+  facet_wrap(~ year) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x = "Continent", y = "Life Expectancy")
+```
+
+
+#### Part II ####
+
+This first plot of part II is the unfaceted version of the earlier lifeExp density plot.
+
+```{r}
+ggplot(data = gapminder, aes(x = lifeExp, fill = continent)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Life Expectancy", y = "Density")
+```
+
+For the next plots, I needed to use dplyr so I loaded it from my library.
+
+```{r}
+library(dplyr)
+```
+
+I designated the mean life expectancy for Asia as "asia_mean". I then subsetted the data to only use the Asia life expectancies in the plot and used a pipe to connect that to my plot code. This plot was a slightly more complex lifeExp density plot. I set the parameters for a linerange to create my Asia mean line (I figured out a better way to do this later).
+
+```{r}
+asia_mean <- mean(gapminder$lifeExp, continent = "Asia")
+
+subset(gapminder, continent == "Asia") %>%
+  ggplot(aes(x = lifeExp, fill = continent)) +
+  geom_density(alpha = 0.6, fill = "green1") +
+  geom_linerange(x = asia_mean, ymin = 0, ymax = 0.04) +
+  labs(x = "Life Expectancy", y = "Density") 
+```
+
+To create my data.frame for this plot (which I designated "continent_mean"), I grouped my continent and then summarized the mean lifeExp. I created a lifeExp density plot that was faceted by continent. I used vline and my continent mean data.frame to created vertical mean lines for my plots.
+
+```{r}
+continent_mean <- group_by(gapminder, continent) %>%
+  summarize(mean_life = mean(lifeExp))
+
+ggplot(gapminder, aes(x = lifeExp, fill = continent)) +
+  geom_density(alpha = 0.7) +
+  geom_vline(aes(xintercept = continent_mean$mean_life), continent_mean) +
+  facet_wrap(~ continent) +
+  labs(x = "Life Expectancy", y = "Density")
+```
+
+For fun, I added a scale fill with a "Blues"" palette.
+
+```{r}
+ggplot(gapminder, aes(x = lifeExp, fill = continent)) +
+  geom_density(alpha = 0.7) +
+  scale_fill_brewer(palette = "Blues") +
+  geom_vline(aes(xintercept = continent_mean$mean_life), continent_mean) +
+  facet_wrap(~ continent) +
+  labs(x = "Life Expectancy", y = "Density")
+```
+
+
+#### Part III ####
+
+First, I had to find out my working directory and make sure the dataset was there.
+
+```{r}
+getwd()
+```
+
+```{r}
+library(ggplot2)
+```
+
+To fit the second line, I added "file =" before the file name.
+
+```{r}
+hw_gapminder <- read.csv(file = './hw_gapminder.csv')
+```
+
+In the third line I deleted the e in "lifeExpe" to fix the spelling error.
+
+```{r}
+mean_lifeExp <- mean(hw_gapminder$lifeExp)
+mean_lifeExp
+```
+
+I changed expression to select columns and slice out appropriate rows (there is probably an easier way).
+
+```{r}
+small_set <- select(hw_gapminder, one_of('country', 'continent', 'year')) %>%
+  slice(c(1, 2, 3, 4, 1300:1304))
+small_set
+```
+
+I used ?mean and found out that if NA_real_ is returned then x is not logical. To fix that I changed na.rm to TRUE.
+
+```{r}
+mean_gdp <- mean(hw_gapminder$gdpPercap, na.rm = TRUE)
+mean_gdp
+```
+
+I don't really understand how to fix the which function so I used filter instead and had it tell me the country name.
+
+```{r}
+max_country <- filter(hw_gapminder, lifeExp == max(lifeExp))["country"]
+max_country
+```
