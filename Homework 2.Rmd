@@ -95,6 +95,8 @@ library(dplyr)
 
 I designated the mean life expectancy for Asia as "asia_mean". I then subsetted the data to only use the Asia life expectancies in the plot and used a pipe to connect that to my plot code. This plot was a slightly more complex lifeExp density plot. I set the parameters for a linerange to create my Asia mean line (I figured out a better way to do this later).
 
+Oh! Let me know what it is!
+
 ```{r}
 asia_mean <- mean(gapminder$lifeExp, continent = "Asia")
 
@@ -103,6 +105,7 @@ subset(gapminder, continent == "Asia") %>%
   geom_density(alpha = 0.6, fill = "green1") +
   geom_linerange(x = asia_mean, ymin = 0, ymax = 0.04) +
   labs(x = "Life Expectancy", y = "Density") 
+
 ```
 
 To create my data.frame for this plot (which I designated "continent_mean"), I grouped my continent and then summarized the mean lifeExp. I created a lifeExp density plot that was faceted by continent. I used vline and my continent mean data.frame to created vertical mean lines for my plots.
@@ -161,6 +164,11 @@ I changed expression to select columns and slice out appropriate rows (there is 
 small_set <- select(hw_gapminder, one_of('country', 'continent', 'year')) %>%
   slice(c(1, 2, 3, 4, 1300:1304))
 small_set
+
+# What I was looking for here was the missing c():
+small_set <- hw_gapminder[c(1, 2, 3, 4, 1300:1304), c('country', 'continent', 'year')]
+
+# Nice use of dplyr though.
 ```
 
 I used ?mean and found out that if NA_real_ is returned then x is not logical. To fix that I changed na.rm to TRUE.
